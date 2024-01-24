@@ -22,12 +22,10 @@ const TodoCard = ({ todo, setTodo, todos }) => {
     e.preventDefault();
     setEditing((prevState) => !prevState);
     try {
-      console.log(e.target.value);
-      console.log(user.id);
       setIsLoading(true);
       const result = await updateTodo(todo.id, {
         ...todo,
-        title: e.target.value,
+        title: text,
         isComplete: isDone,
         userId: user.id,
       });
@@ -35,7 +33,7 @@ const TodoCard = ({ todo, setTodo, todos }) => {
       const updatedList = todos.map((elem) => {
         if (elem.id === todo.id) {
           elem.isComplete = isDone;
-          elem.title = e.target.value;
+          elem.title = text;
         }
 
         return e;
@@ -84,7 +82,7 @@ const TodoCard = ({ todo, setTodo, todos }) => {
                 style={{
                   display: editing ? "inline" : "none",
                 }}
-                onSubmit={(e) => onFormSubmit(e)}
+                onSubmit={onFormSubmit}
               >
                 <input
                   type="text"

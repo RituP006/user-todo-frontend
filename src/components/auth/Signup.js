@@ -54,7 +54,8 @@ const SignUp = () => {
           "Content-type": "application/json",
         },
       };
-      const { data } = await axios.post(
+      console.log(firstName, lastName, email, password, profileImage);
+      const data = await axios.post(
         `${BASE_URL}/user/register`,
         {
           firstName,
@@ -73,7 +74,7 @@ const SignUp = () => {
         isClosable: true,
         position: "top-right",
       });
-      localStorage.setItem("userInfo", JSON.stringify(data.data));
+      localStorage.setItem("userInfo", JSON.stringify(data.data.data));
       setProfileImageLoading(false);
       navigate("/home");
     } catch (error) {
@@ -121,6 +122,7 @@ const SignUp = () => {
       })
         .then((res) => res.json())
         .then((data) => {
+          console.log(data);
           setProfileImage(data.url.toString());
           console.log(data.url.toString());
           setProfileImageLoading(false);

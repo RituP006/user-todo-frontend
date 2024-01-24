@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Input } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
 import { useToast } from "@chakra-ui/toast";
 import { useUserContext } from "../../context/UserContext";
-import { addNewTodo } from "../../redux/actions";
+import { addNewTodo } from "../../actions";
 
 const TodoForm = () => {
   const [text, setText] = useState("");
