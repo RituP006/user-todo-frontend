@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Input } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/toast";
 import { useUserContext } from "../../context/UserContext";
-import { addNewTodo } from "../../actions";
+import { addNewTodo } from "../../utils/handleApi";
 
-const TodoForm = () => {
+const TodoForm = ({ setTodos }) => {
   const [text, setText] = useState("");
-  const { user } = useUserContext();
+  const user = JSON.parse(localStorage.getItem("userInfo"));
   const toast = useToast();
 
   const onFormSubmit = async (e) => {
@@ -14,11 +14,12 @@ const TodoForm = () => {
     const todo = {
       title: text,
       isComplete: false,
-      userId: user.id,
+      userId: user?.id,
     };
 
     try {
       await addNewTodo(todo);
+      setTodos((prev) => [...prev, todo]);
       toast({
         title: "Todo created successfully",
         status: "success",
@@ -42,7 +43,6 @@ const TodoForm = () => {
 
   const onInputChange = (e) => {
     setText(e.target.value);
-    console.log(e.target.value);
   };
 
   return (

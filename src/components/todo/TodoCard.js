@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { FaEdit } from "react-icons/fa";
 import { ListItem, ListIcon } from "@chakra-ui/react";
 import { MdCheckCircle } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
-import { updateTodo, deleteTodo } from "../../actions";
+import { updateTodo, deleteTodo } from "../../utils/handleApi";
 import { Box } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import { Spinner } from "@chakra-ui/react";
 import { useUserContext } from "../../context/UserContext";
 
-const TodoCard = ({ todo, setTodo, todos }) => {
+const TodoCard = ({ todo, setTodo }) => {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(todo?.title);
   const [isDone, setIsDone] = useState(todo?.isComplete);
@@ -18,29 +18,12 @@ const TodoCard = ({ todo, setTodo, todos }) => {
   const { user } = useUserContext();
   const toast = useToast();
 
-  const onFormSubmit = async (e) => {
-    e.preventDefault();
-    setEditing((prevState) => !prevState);
+  async function handleUpdate(data) {
     try {
       setIsLoading(true);
-      const result = await updateTodo(todo.id, {
-        ...todo,
-        title: text,
-        isComplete: isDone,
-        userId: user.id,
-      });
-      console.log(result);
-      const updatedList = todos.map((elem) => {
-        if (elem.id === todo.id) {
-          elem.isComplete = isDone;
-          elem.title = text;
-        }
-
-        return e;
-      });
-
-      setTodo([...updatedList]);
+      const result = await updateTodo(todo.id, data, setTodo);
       setIsLoading(false);
+      toast.closeAll();
       toast({
         title: "Todo updated successfully",
         status: "success",
@@ -48,9 +31,11 @@ const TodoCard = ({ todo, setTodo, todos }) => {
         isClosable: true,
         position: "top-right",
       });
+      return result;
     } catch (error) {
-      console.log(error);
+      console.log("Error in updating todo : ", error);
       setIsLoading(false);
+      toast.closeAll();
       toast({
         title: "Error Occured!",
         description: error.message,
@@ -60,10 +45,23 @@ const TodoCard = ({ todo, setTodo, todos }) => {
         position: "top-right",
       });
     }
+  }
+  const onFormSubmit = async (e) => {
+    e.preventDefault();
+    await handleUpdate({ ...todo, title: text });
+    setEditing(false);
+  };
+
+  const updateOnToggle = async () => {
+    await handleUpdate({ ...todo, isComplete: !isDone });
+    setIsDone(!isDone);
   };
 
   return (
-    <ListItem background={isDone ? "green.100" : "#d7dedfab"} padding=".5rem">
+    <ListItem
+      background={todo.isComplete ? "green.100" : "#d7dedfab"}
+      padding=".5rem"
+    >
       <Box display="flex" justifyContent="space-between" alignItems="center">
         {loading ? (
           <Spinner />
@@ -71,12 +69,16 @@ const TodoCard = ({ todo, setTodo, todos }) => {
           <div style={{ width: "100%" }}>
             <ListIcon
               as={MdCheckCircle}
-              color={isDone ? "green.500" : ""}
-              onClick={() => {
-                setIsDone((prev) => !prev);
-              }}
+              color={todo.isComplete ? "green.500" : ""}
+              onClick={() => updateOnToggle()}
             />
-            {!editing && todo.title}
+            <span
+              style={{
+                textDecoration: todo.isComplete ? "strike-through" : "",
+              }}
+            >
+              {!editing && todo.title}
+            </span>
             {editing && (
               <form
                 style={{
@@ -102,7 +104,14 @@ const TodoCard = ({ todo, setTodo, todos }) => {
               setEditing((prev) => !prev);
             }}
           />
-          <MdDelete color="red" onClick={() => deleteTodo(todo.id)} />
+          <MdDelete
+            color="red"
+            onClick={() => {
+              deleteTodo(todo.id, setTodo, user.id).then((result) => {
+                console.log("Delete result", result);
+              });
+            }}
+          />
         </Box>
       </Box>
     </ListItem>

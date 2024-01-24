@@ -47,14 +47,12 @@ const SignUp = () => {
       setProfileImageLoading(false);
       return;
     }
-    console.log(firstName, lastName, email, password, profileImage);
     try {
       const config = {
         headers: {
           "Content-type": "application/json",
         },
       };
-      console.log(firstName, lastName, email, password, profileImage);
       const data = await axios.post(
         `${BASE_URL}/user/register`,
         {
@@ -66,7 +64,6 @@ const SignUp = () => {
         },
         config
       );
-      console.log(data);
       toast({
         title: "Registration Successful",
         status: "success",
@@ -78,7 +75,7 @@ const SignUp = () => {
       setProfileImageLoading(false);
       navigate("/home");
     } catch (error) {
-      console.log(error);
+      console.log("Error in Signup : ", error);
       const errorMessage =
         error.response && error.response.data
           ? error.response.data.message || "An error occurred"
@@ -107,7 +104,6 @@ const SignUp = () => {
       });
       return;
     }
-    console.log(profileImages);
     if (
       profileImages.type === "image/jpeg" ||
       profileImages.type === "image/png"
@@ -122,13 +118,13 @@ const SignUp = () => {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
-          setProfileImage(data.url.toString());
-          console.log(data.url.toString());
+          console.log("Image upload to cloudinary response : ", data);
+          setProfileImage(data?.url?.toString());
+          console.log("Image Url : ", data?.url?.toString());
           setProfileImageLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("Error in uploading image", err);
           setProfileImageLoading(false);
         });
     } else {

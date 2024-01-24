@@ -9,7 +9,6 @@ import { MdLogout } from "react-icons/md";
 const Header = () => {
   const navigate = useNavigate();
   const { user } = useUserContext();
-  console.log(user);
 
   const logoutHandler = () => {
     localStorage.removeItem("userInfo");
